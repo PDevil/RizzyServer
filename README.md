@@ -1,0 +1,2 @@
+# RizzyServer
+Hackathon project
