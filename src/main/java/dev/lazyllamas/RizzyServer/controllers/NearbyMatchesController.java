@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/nearby")
-public class NearbyController
+public class NearbyMatchesController
 {
 	@Autowired
 	private SocialService socialService;
 
-	@GetMapping("/{id}")
+	@GetMapping("/nearby/{id}")
 	public ResponseEntity getNearbyPeople(@PathVariable UUID id)
 	{
 		Profile p = socialService.find(id);
@@ -26,5 +25,17 @@ public class NearbyController
 		}
 
 		return ResponseEntity.ok(socialService.getPeopleNearby(p));
+	}
+
+	@GetMapping("/matches/{id}")
+	public ResponseEntity matchWithPeople(@PathVariable UUID id)
+	{
+		Profile p = socialService.find(id);
+		if(p == null)
+		{
+			return ControllerErrorState.compileResponse(69, "User ID is not correct!");
+		}
+
+		return ResponseEntity.ok(socialService.getMatches(p));
 	}
 }

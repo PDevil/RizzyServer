@@ -1,5 +1,6 @@
 package dev.lazyllamas.RizzyServer.services;
 
+import dev.lazyllamas.RizzyServer.models.Profile;
 import dev.lazyllamas.RizzyServer.models.User;
 import gnu.crypto.hash.HashFactory;
 import gnu.crypto.hash.IMessageDigest;
@@ -71,5 +72,13 @@ public class UserService
 		{
 			em.persist(user);
 		}
+	}
+
+	@Transactional
+	public void createProfile(User user)
+	{
+		Profile p = new Profile();
+		p.setStorage_id(user.getStorage_id());
+		em.persist(p);
 	}
 }

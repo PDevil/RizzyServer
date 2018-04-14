@@ -19,6 +19,9 @@ public class SocialService
 
 	public Profile find(UUID id)
 	{
+		if(em.find(User.class, id) == null)
+			return null;
+
 		UUID storageId = em.find(User.class, id).getStorage_id();
 		return em.find(Profile.class, storageId);
 	}
@@ -28,13 +31,30 @@ public class SocialService
 		if(issuer.getLatitude() == null || issuer.getLongitude() == null)
 			return null;
 
-		TypedQuery<Profile> usersQuery = em
-				.createQuery("SELECT p FROM Profile AS p WHERE latlon_distance(:myLatitude, :myLongitude, p.latitude, p.longitude) <= :nearbyRadius", Profile.class)
+		TypedQuery<Profile> profilesQuery = em
+				.createQuery("SELECT p FROM Profile AS p WHERE latlon_distance(:myLatitude, :myLongitude, p.latitude, p.longitude) <= :nearbyRadius AND :myId != p.storage_id", Profile.class)
 				.setParameter("myLatitude", issuer.getLatitude())
 				.setParameter("myLongitude", issuer.getLongitude())
-				.setParameter("nearbyRadius", 3.0);
+				.setParameter("myId", issuer.getStorage_id())
+				.setParameter("nearbyRadius", 5.0);
 
-		return usersQuery.getResultList();
+		return profilesQuery.getResultList();
+	}
+
+	public List<Profile> getMatches(Profile issuer)
+	{
+		if(issuer.getLatitude() == null || issuer.getLongitude() == null)
+			return null;
+
+		TypedQuery<Profile> profilesQuery = em
+				.createQuery("SELECT storage_id, name, age, description, latitude, longitude FROM matches(:id_issuer, :age_issuer, :lat_issuer, :lon_issuer, :nearby_radius)", Profile.class)
+				.setParameter("age_issuer", issuer.getAge())
+				.setParameter("lat_issuer", issuer.getLatitude())
+				.setParameter("lon_issuer", issuer.getLongitude())
+				.setParameter("id_issuer", issuer.getStorage_id())
+				.setParameter("nearby_radius", 5.0);
+
+		return profilesQuery.getResultList();
 	}
 
 	@Transactional

@@ -73,6 +73,7 @@ public class UsersAuthController
 		newUser.setStorage_id(UUID.randomUUID());
 
 		userService.save(newUser);
+		userService.createProfile(newUser);
 
 		URI location = uriBuilder.path("/profile/{id}").buildAndExpand(newUser.getId()).toUri();
 		return ResponseEntity.created(location).build();
