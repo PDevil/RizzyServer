@@ -35,7 +35,7 @@ public class UsersAuthController
 		}
 
 		UUID userId = userService.userFindIdByEmail(user.getEmail());
-		URI location = uriBuilder.path("/users/{id}").buildAndExpand(userId).toUri();
+		URI location = uriBuilder.path("/profile/{id}").buildAndExpand(userId).toUri();
 		return ResponseEntity.accepted().location(location).build();
 	}
 
@@ -64,10 +64,11 @@ public class UsersAuthController
 		User newUser = new User(UUID.randomUUID());
 		newUser.setEmail(user.getEmail());
 		newUser.setPassword(hasher.digest());
+		newUser.setStorage_id(UUID.randomUUID());
 
 		userService.save(newUser);
 
-		URI location = uriBuilder.path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
+		URI location = uriBuilder.path("/profile/{id}").buildAndExpand(newUser.getId()).toUri();
 		return ResponseEntity.created(location).build();
 	}
 }

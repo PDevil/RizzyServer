@@ -10,28 +10,19 @@ import javax.persistence.Table;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "profiles")
 @NoArgsConstructor
-public class User
+@Getter
+@Setter
+public class Profile
 {
-	public User(UUID id)
-	{
-		this.id = id;
-	}
-
-	@Getter
 	@Id
-	private UUID id;
-
-	@Getter
-	@Setter
-	private String email;
-
-	@Getter
-	@Setter
-	private byte[] password;
-
-	@Getter
-	@Setter
 	private UUID storage_id;
+	private String name;
+	private int age;
+	private String description;
+	private Double latitude;
+	private Double longitude;
+
+	// TODO: More information
 }
