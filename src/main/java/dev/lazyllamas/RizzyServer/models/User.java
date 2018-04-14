@@ -31,5 +31,13 @@ public class User
 	@Setter
 	private byte[] password;
 
+	@Getter
+	@Setter
+	private Double latitude = 0.0;
+
+	@Getter
+	@Setter
+	private Double longitude = 0.0;
+
 	// TODO: More information
 }

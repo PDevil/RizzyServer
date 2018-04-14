@@ -1,6 +1,5 @@
 package dev.lazyllamas.RizzyServer.controllers;
 
-import com.sun.xml.internal.ws.client.sei.ResponseBuilder;
 import dev.lazyllamas.RizzyServer.ControllerErrorState;
 import dev.lazyllamas.RizzyServer.models.NewUser;
 import dev.lazyllamas.RizzyServer.models.User;
@@ -8,33 +7,42 @@ import dev.lazyllamas.RizzyServer.services.UserService;
 import gnu.crypto.hash.HashFactory;
 import gnu.crypto.hash.IMessageDigest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.naming.ldap.Control;
-import javax.validation.constraints.Null;
 import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
-public class UsersController
+@RequestMapping("/auth")
+public class UsersAuthController
 {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping
-	public ResponseEntity<ControllerErrorState> registerUser(@RequestBody NewUser user, UriComponentsBuilder uriBuilder)
+	@PostMapping("/login")
+	public ResponseEntity<ControllerErrorState> login(@RequestBody NewUser user, UriComponentsBuilder uriBuilder)
 	{
-		try
+		if(user.getEmail() == null || user.getPassword() == null)
 		{
-			user.getEmail();
-			user.getPassword();
+			return ControllerErrorState.compileResponse(100, "Email and/or password is missing.");
 		}
-		catch(NullPointerException e)
+
+		if(!userService.userCanLogin(user.getEmail(), user.getPassword()))
+		{
+			return ControllerErrorState.compileResponse(103, "Email and/or password is incorrect!");
+		}
+
+		UUID userId = userService.userFindIdByEmail(user.getEmail());
+		URI location = uriBuilder.path("/users/{id}").buildAndExpand(userId).toUri();
+		return ResponseEntity.accepted().location(location).build();
+	}
+
+	@PostMapping("/register")
+	public ResponseEntity<ControllerErrorState> register(@RequestBody NewUser user, UriComponentsBuilder uriBuilder)
+	{
+		if(user.getEmail() == null || user.getPassword() == null)
 		{
 			return ControllerErrorState.compileResponse(100, "Email and/or password is missing.");
 		}
