@@ -6,6 +6,7 @@ import dev.lazyllamas.RizzyServer.models.User;
 import dev.lazyllamas.RizzyServer.services.UserService;
 import gnu.crypto.hash.HashFactory;
 import gnu.crypto.hash.IMessageDigest;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class UsersAuthController
 
 		if(!userService.userCanLogin(user.getEmail(), user.getPassword()))
 		{
-			return ControllerErrorState.compileResponse(103, "Email and/or password is incorrect!");
+			return ControllerErrorState.compileResponse(104, "Email and/or password is incorrect!");
 		}
 
 		UUID userId = userService.userFindIdByEmail(user.getEmail());
@@ -47,14 +48,19 @@ public class UsersAuthController
 			return ControllerErrorState.compileResponse(100, "Email and/or password is missing.");
 		}
 
+		if(!EmailValidator.getInstance(false).isValid(user.getEmail()))
+		{
+			return ControllerErrorState.compileResponse(101, "Invalid email address!");
+		}
+
 		if(userService.userExists(user.getEmail()))
 		{
-			return ControllerErrorState.compileResponse(101, "Account with this email address already exists!");
+			return ControllerErrorState.compileResponse(102, "Account with this email address already exists!");
 		}
 
 		if(user.getPassword().equals(""))
 		{
-			return ControllerErrorState.compileResponse(102, "Password not given.");
+			return ControllerErrorState.compileResponse(103, "Password not given.");
 		}
 
 		byte[] pass = user.getPassword().getBytes();
