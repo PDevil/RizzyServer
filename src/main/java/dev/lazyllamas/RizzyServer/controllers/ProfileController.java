@@ -1,13 +1,19 @@
 package dev.lazyllamas.RizzyServer.controllers;
 
 import dev.lazyllamas.RizzyServer.ControllerErrorState;
+import dev.lazyllamas.RizzyServer.RizzyServerApplication;
 import dev.lazyllamas.RizzyServer.models.Profile;
 import dev.lazyllamas.RizzyServer.services.SocialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.UUID;
 
 @RestController
@@ -72,10 +78,27 @@ public class ProfileController
 		return ResponseEntity.ok().build();
 	}
 
-	/*@PostMapping("/avatar/{id}")
-	public ResponseEntity uploadAvatar(@PathVariable UUID id, @RequestPart(value = "file", required = true) MultipartFile file)
+	@PostMapping("/avatar/{id}")
+	public ResponseEntity uploadAvatar(@PathVariable UUID id, @RequestPart(value = "file", required = true) MultipartFile file, UriComponentsBuilder uriBuilder) throws IOException
 	{
-		file.getName();
-		return null;
-	}*/
+		Profile p = socialService.find(id);
+		if(p == null)
+		{
+			return ControllerErrorState.compileResponse(69, "User ID is not correct!");
+		}
+
+		String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
+		String newName = id.toString() + "." + ext;
+
+		URL absolute = RizzyServerApplication.class.getClassLoader().getResource("");
+		File newFile = new File( absolute.getPath() + "public/images/user-avatars/" + newName);
+		newFile.createNewFile();
+
+		file.transferTo(newFile);
+		URI location = uriBuilder.path("/images/user-avatars/{id}." + ext).buildAndExpand(id).toUri();
+
+		p.setAvatar(location.getPath());
+		socialService.save(p);
+		return ResponseEntity.created(location).build();
+	}
 }
