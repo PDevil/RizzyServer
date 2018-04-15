@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +33,12 @@ public class SocialService
 			return null;
 
 		TypedQuery<Profile> profilesQuery = em
-				.createQuery("SELECT p FROM Profile AS p WHERE latlon_distance(:myLatitude, :myLongitude, p.latitude, p.longitude) <= :nearbyRadius AND :myId != p.storage_id", Profile.class)
+				.createQuery(   "SELECT p FROM Profile AS p " +
+								"WHERE latlon_distance(:myLatitude, :myLongitude, p.latitude, p.longitude) <= :nearbyRadius " +
+								"AND :myId != p.storage_id " +
+								"AND p.age != null " +
+								"AND p.name != null " +
+								"AND p.description != null", Profile.class)
 				.setParameter("myLatitude", issuer.getLatitude())
 				.setParameter("myLongitude", issuer.getLongitude())
 				.setParameter("myId", issuer.getStorage_id())
@@ -46,12 +52,12 @@ public class SocialService
 		if(issuer.getLatitude() == null || issuer.getLongitude() == null)
 			return null;
 
-		TypedQuery<Profile> profilesQuery = em
-				.createQuery("SELECT storage_id AS s_id, name, age, description, latitude, longitude " +
-								"FROM matches(:id_issuer, :age_issuer, :lat_issuer, :lon_issuer, :nearby_radius) " +
+		Query profilesQuery = em
+				.createNativeQuery("SELECT m.storage_id, m.name, m.age, m.description, m.latitude, m.longitude " +
+								"FROM matches(:id_issuer, :age_issuer, :lat_issuer, :lon_issuer, :nearby_radius) AS m " +
 								"WHERE NOT EXISTS(  SELECT 1 " +
-													"FROM friendship " +
-													"WHERE (person_1 = s_id AND person_2 = :id_issuer) OR (person_1 = :id_issuer AND person_2 = s_id) AND status = 1 )", Profile.class)
+													"FROM friends " +
+													"WHERE (person_1 = m.storage_id AND person_2 = :id_issuer) OR (person_1 = :id_issuer AND person_2 = m.storage_id) AND status = 1 )", Profile.class)
 				.setParameter("age_issuer", issuer.getAge())
 				.setParameter("lat_issuer", issuer.getLatitude())
 				.setParameter("lon_issuer", issuer.getLongitude())

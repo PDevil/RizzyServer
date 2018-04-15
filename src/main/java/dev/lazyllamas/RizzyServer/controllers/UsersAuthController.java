@@ -72,6 +72,7 @@ public class UsersAuthController
 		newUser.setPassword(hasher.digest());
 
 		userService.createProfile(newUser);
+		newUser.getProfile().setAvatar("/images/default-avatar.jpg");
 		userService.save(newUser);
 
 		URI location = uriBuilder.path("/profile/{id}").buildAndExpand(newUser.getId()).toUri();

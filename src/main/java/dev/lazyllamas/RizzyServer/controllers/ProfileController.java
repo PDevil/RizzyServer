@@ -6,6 +6,7 @@ import dev.lazyllamas.RizzyServer.services.SocialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ public class ProfileController
 			return ControllerErrorState.compileResponse(69, "User ID is not correct!");
 		}
 
-		if(profile.getName() == null || profile.getDescription() == null || profile.getAge() == 0)
+		if(profile.getName() == null || profile.getDescription() == null || profile.getAge() == null)
 		{
 			return ControllerErrorState.compileResponse(110, "Profile description is missing arguments.");
 		}
@@ -70,4 +71,11 @@ public class ProfileController
 		socialService.save(p);
 		return ResponseEntity.ok().build();
 	}
+
+	/*@PostMapping("/avatar/{id}")
+	public ResponseEntity uploadAvatar(@PathVariable UUID id, @RequestPart(value = "file", required = true) MultipartFile file)
+	{
+		file.getName();
+		return null;
+	}*/
 }
