@@ -19,11 +19,11 @@ public class SocialService
 
 	public Profile find(UUID id)
 	{
-		if(em.find(User.class, id) == null)
+		User u = em.find(User.class, id);
+		if(u == null)
 			return null;
 
-		UUID storageId = em.find(User.class, id).getStorage_id();
-		return em.find(Profile.class, storageId);
+		return u.getProfile();
 	}
 
 	public List<Profile> getPeopleNearby(Profile issuer)
@@ -47,7 +47,11 @@ public class SocialService
 			return null;
 
 		TypedQuery<Profile> profilesQuery = em
-				.createQuery("SELECT storage_id, name, age, description, latitude, longitude FROM matches(:id_issuer, :age_issuer, :lat_issuer, :lon_issuer, :nearby_radius)", Profile.class)
+				.createQuery("SELECT storage_id AS s_id, name, age, description, latitude, longitude " +
+								"FROM matches(:id_issuer, :age_issuer, :lat_issuer, :lon_issuer, :nearby_radius) " +
+								"WHERE NOT EXISTS(  SELECT 1 " +
+													"FROM friendship " +
+													"WHERE (person_1 = s_id AND person_2 = :id_issuer) OR (person_1 = :id_issuer AND person_2 = s_id) AND status = 1 )", Profile.class)
 				.setParameter("age_issuer", issuer.getAge())
 				.setParameter("lat_issuer", issuer.getLatitude())
 				.setParameter("lon_issuer", issuer.getLongitude())

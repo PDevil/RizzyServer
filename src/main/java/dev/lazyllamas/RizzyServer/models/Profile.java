@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -16,6 +14,11 @@ import java.util.UUID;
 @Setter
 public class Profile
 {
+	public Profile(UUID id)
+	{
+		this.storage_id = id;
+	}
+
 	@Id
 	private UUID storage_id;
 	private String name;
@@ -23,6 +26,4 @@ public class Profile
 	private String description;
 	private Double latitude;
 	private Double longitude;
-
-	// TODO: More information
 }

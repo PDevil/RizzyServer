@@ -70,10 +70,9 @@ public class UsersAuthController
 		User newUser = new User(UUID.randomUUID());
 		newUser.setEmail(user.getEmail());
 		newUser.setPassword(hasher.digest());
-		newUser.setStorage_id(UUID.randomUUID());
 
-		userService.save(newUser);
 		userService.createProfile(newUser);
+		userService.save(newUser);
 
 		URI location = uriBuilder.path("/profile/{id}").buildAndExpand(newUser.getId()).toUri();
 		return ResponseEntity.created(location).build();

@@ -77,8 +77,8 @@ public class UserService
 	@Transactional
 	public void createProfile(User user)
 	{
-		Profile p = new Profile();
-		p.setStorage_id(user.getStorage_id());
+		Profile p = new Profile(UUID.randomUUID());
+		user.setProfile(p);
 		em.persist(p);
 	}
 }
