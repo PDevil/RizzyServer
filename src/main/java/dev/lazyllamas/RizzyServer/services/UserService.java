@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import java.net.URI;
 import java.util.UUID;
 
 @Service
